@@ -112,7 +112,7 @@
                     variables: {requestType: requestType, inputStr: inputStr, appType: appType},
                 });
                 console.log(articles);
-                this.articles = articles.data.getFeed.items;
+                this.articles = this.queue.concat(articles.data.getFeed.items);
                 const list = [];
                 for (let i = 0; i < count; i++) {
                     console.log(this.articles[this.offset]);
