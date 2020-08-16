@@ -46,7 +46,7 @@
     import Tinder from "vue-tinder";
     import aws_exports from "./aws-exports";
     import {getFeed} from './graphql/queries';
-    import {updateLikes} from './graphql/mutations';
+    //import {updateLikes} from './graphql/mutations';
 
     Auth.currentCredentials()
         .then(d => console.log('data: ', d))
@@ -65,7 +65,8 @@
             queue: [],
             offset: 0,
             history: [],
-            articles: []
+            articles: [],
+            nextToken: null
         }),
         mounted() {
             this.init()
@@ -106,20 +107,30 @@
                 console.log(this.$route.query.appType); //should return object
                 console.log(this.$route.params.id); //should return id of URL param
             },
-            async getArticles(count = 5, append = true) {
+            async getArticles(count = 10, append = true) {
                 const articles = await API.graphql({
                     query: getFeed,
-                    variables: {requestType: requestType, inputStr: inputStr, appType: appType},
+                    variables: {
+                        requestType: requestType,
+                        inputStr: inputStr,
+                        appType: appType,
+                        nextToken: this.nextToken,
+                        limit: count
+                    },
                 });
-                console.log(articles);
-                this.articles = this.queue.concat(articles.data.getFeed.items);
+                this.nextToken = articles.data.getFeed.nextToken;
+
                 const list = [];
-                for (let i = 0; i < count; i++) {
-                    console.log(this.articles[this.offset]);
-                    list.push({id: this.articles[this.offset].ArticleId, item: this.articles[this.offset]});
-                    this.offset++;
+                for (let i = 0; i < articles.data.getFeed.items.length; i++) {
+                    let tempArticle = articles.data.getFeed.items[i];
+                    if (tempArticle !== undefined && this.queue[tempArticle.ArticleId] === undefined) {
+                        list.push({id: tempArticle.ArticleId, item: tempArticle});
+                        this.articles.push({
+                            id: tempArticle.ArticleId,
+                            item: tempArticle
+                        });
+                    }
                 }
-                console.log(this.queue);
                 if (append) {
                     this.queue = this.queue.concat(list);
                 } else {
@@ -130,29 +141,27 @@
                 // type: result，'like': swipe right, 'nope': swipe left, 'super': swipe up
                 // key:  The keyName of the removed card
                 // item: Child object in queue
-                console.log(item)
-
-                let val = 1;
-                if (item.type === "like") {
-                    val = 1
-                }
-                if (item.type === "nope") {
-                    val = -1
-                }
-                var updateLikesInput = {
-                    "ArticleId": item.item.ArticleId,
-                    "Value": val,
-                    "PluginName": item.item.PluginName
-                }
-                if (item.type === "like" || item.type === "nope") {
-                    const result = API.graphql({
-                        query: updateLikes,
-                        variables: {input: updateLikesInput},
-                    });
-                    console.log(result)
-                    console.log("Like")
-                }
-                if (this.queue.length < 3) {
+                // let val = 1;
+                // if (item.type === "like") {
+                //     val = 1
+                // }
+                // if (item.type === "nope") {
+                //     val = -1
+                // }
+                // var updateLikesInput = {
+                //     "ArticleId": item.item.ArticleId,
+                //     "Value": val,
+                //     "PluginName": item.item.PluginName
+                // }
+                // if (item.type === "like" || item.type === "nope") {
+                //     const result = API.graphql({
+                //         query: updateLikes,
+                //         variables: {input: updateLikesInput},
+                //     });
+                //     console.log(result)
+                //     console.log("Like")
+                // }
+                if (this.queue.length < 4) {
                     this.getArticles();
                 }
                 this.history.push(item);
