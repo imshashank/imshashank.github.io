@@ -1,23 +1,24 @@
 // ./router.js
 
 import Vue from "vue";
-import Router from "vue-router";
+import VueRouter from "vue-router";
 
-Vue.use(Router);
+Vue.use(VueRouter);
 
-export default new Router({
+export default new VueRouter({
     routes: [
         {
-            path: "/",
+            path: "/:id",
             name: "Home",
             component: () => import("./App.vue"),
-            props: route => ({ query: route.query.q })
+            props: true,
         },
         {
-            path: "/bolly/",
-            name: "BollyWood",
+            path: "/deck/:id",
+            name: "Deck",
             component: () => import("./App.vue"),
-            props: { appType: "BOLLYWOOD" }
+            props: true,
         }
-    ]
+    ],
+    mode: 'history',
 });

@@ -5,24 +5,22 @@
                     @submit="onSubmit">
                 <template slot-scope="scope" class=".vue-tinder">
                     <div class="pic">
-                        <div class="card vertical-center">
-                            <div class="card-body"
-                                 style="color: black;text-align: center;font-size: 14px;overflow-y: hidden;">
-                                <p>{{$route.params.id}}</p>
-                                <div v-if="scope.data.item.content" class="card-img-top"
-                                     v-html="span(scope.data.item.content)"/>
-                                <h3 class="card-title">{{ scope.data.item.title }}</h3>
-                                <!--                                <div style="text-overflow: ellipsis;-->
-                                <!--                                                            text-align: left;-->
-                                <!--                                                            overflow: hidden;display: -webkit-box;-webkit-line-clamp: 2; /* number of lines to show */-webkit-box-orient: vertical;"-->
-                                <!--                                     class="card-text">-->
-                                <!--&lt;!&ndash;                                    <div v-if="scope.data.item.Summary<350"> {{ scope.data.item.Summary&ndash;&gt;-->
-                                <!--&lt;!&ndash;                                        }}&ndash;&gt;-->
-                                <!--&lt;!&ndash;                                    </div>&ndash;&gt;-->
-                                <!--&lt;!&ndash;                                    <div v-else>{{ scope.data.item.Summary.substring(0,350)+".." }}</div>&ndash;&gt;-->
-
-
-                            </div>
+                        <div class="card">
+                            {{scope.data.CONTENT}}
+<!--                            <div class="card-body"-->
+<!--                                 style="color: black;text-align: center;font-size: 14px;overflow-y: hidden;">-->
+<!--                                <h3 class="card-title">{{ scope.data.item.Title }}</h3>-->
+<!--                                <div style="text-overflow: ellipsis;-->
+<!--                                text-align: left;-->
+<!--                                overflow: hidden;display: -webkit-box;-webkit-line-clamp: 2; /* number of lines to show */-webkit-box-orient: vertical;"-->
+<!--                                     class="card-text">-->
+<!--                                    <div v-if="scope.data.item.Summary<350"> {{ scope.data.item.Summary-->
+<!--                                        }}-->
+<!--                                    </div>-->
+<!--                                    <div v-else>{{ scope.data.item.Summary.substring(0,350)+".." }}-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                     </div>
 
@@ -33,6 +31,7 @@
                 <img class="rewind-pointer" slot="rewind" src="./assets/img/super-txt.png">
             </Tinder>
             <div class="btns">
+                <img src="./assets/img/rewind.png" @click="decide('rewind')">
                 <img src="./assets/img/nope.png" @click="decide('nope')">
                 <img src="./assets/img/super-like.png" @click="decide('super')">
                 <img src="./assets/img/like.png" @click="decide('like')">
@@ -49,8 +48,7 @@
 <script>
     import Tinder from "vue-tinder";
     import Vue from 'vue'
-    import cards from './decks/bedsheet.json';
-    import intro from './decks/start.json';
+    import cards from '../decks/bedsheet.json';
     import VueFriendlyIframe from 'vue-friendly-iframe';
     import VueFullPage from 'vue-fullpage.js'
 
@@ -58,10 +56,10 @@
     Vue.use(VueFullPage);
 
     export default {
-        name: "App",
+        name: "Deck",
         components: {Tinder},
         data: () => ({
-            queue: [],
+            queue: cards,
             windowHeight: window.innerHeight,
             offset: 0,
             history: [],
@@ -72,33 +70,16 @@
         }),
         mounted() {
             this.init();
-            console.log('The id is: ' + this.$route.params.id);
+            this.$nextTick(() => {
+                window.addEventListener('resize', this.onResize);
+            });
         },
         created() {
             this.getCards();
         },
         methods: {
-            init () {
-                console.log(this.$route);  //should return object
-                console.log(this.$route.params); //should return object
-                console.log(this.$route.params.id); //should return id of URL param
-            },
-            span(text) {
-                return `<span> ${text} </span>`
-            },
-            async getCards() {
-                //console.log(this.deck_id);
-                const list = []
-                let index = 0;
-                for (let i = 0; i < intro.deck.length; i++) {
-                    list.push({id: index, item: intro.deck[i]});
-                    index++;
-                }
-                for (let i = 0; i < cards.deck.length; i++) {
-                    list.push({id: index, item: cards.deck[i]});
-                    index++;
-                }
-                this.queue = this.queue.concat(list);
+            async getCards(count = 10, append = true) {
+                this.queue = this.queue.concat(cards);
             },
             onSubmit(item) {
                 this.offset++;
@@ -154,8 +135,7 @@
     }
 
     .card {
-        margin: auto;
-        padding: 10px;
+        width: 100%;
         border: none !important;
     }
 
@@ -193,14 +173,6 @@
         justify-content: center;
         min-width: 300px;
         max-width: 355px;
-    }
-
-    .vertical-center {
-        margin: 0;
-        position: absolute;
-        top: 50%;
-        -ms-transform: translateY(-50%);
-        transform: translateY(-50%);
     }
 
     .nope-pointer,

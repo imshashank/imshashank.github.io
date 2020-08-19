@@ -1,0 +1,19 @@
+{
+  "deck": [
+    {
+      "id": "1",
+      "CARD_TYPE": "TEXT",
+      "title": "Please help me select a bedsheet. \n \n It will only take 30 seconds"
+    },
+    {
+      "id": "2",
+      "CARD_TYPE": "TEXT",
+      "title": "Swipe Right on bedsheets you like"
+    },
+    {
+      "id": "3",
+      "CARD_TYPE": "TEXT",
+      "title": "Swipe left on bedsheets you don't like"
+    }
+  ]
+}
